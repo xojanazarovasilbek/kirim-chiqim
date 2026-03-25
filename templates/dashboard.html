@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card shadow border-0 bg-primary text-white p-3">
+            <small>Umumiy Savdo</small>
+            <h2>{{ total_sales }} so'm</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow border-0 bg-success text-white p-3">
+            <small>Sof Foyda</small>
+            <h2>{{ total_profit }} so'm</h2>
+        </div>
+    </div>
+        <div class="col-md-3">
+            <a href="{% url 'payment_add' %}" class="text-decoration-none">
+                <div class="card shadow border-0 bg-danger text-white p-3 border-hover" style="cursor: pointer; transition: 0.3s;">
+                    <small>Hamkorlardan Qarz</small>
+                    <h2>{{ total_debt }} so'm</h2>
+                </div>
+            </a>
+        </div>
+
+        <style>
+            /* Bossilganda biroz kichrayish effekti uchun (ixtiyoriy) */
+            .border-hover:active {
+                transform: scale(0.95);
+            }
+            .border-hover:hover {
+                opacity: 0.9;
+            }
+        </style>
+    <div class="col-md-3">
+        <div class="card shadow border-0 bg-warning text-dark p-3">
+            <small>Tugayotgan Tovar</small>
+            <h2>{{ low_stock }} ta</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card shadow border-0 p-3">
+            <h5>Oxirgi Kirimlar (Hamkorlar bilan)</h5>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>Sana</th>
+                        <th>Hamkor</th>
+                        <th>Mahsulot</th>
+                        <th>Soni</th>
+                        <th>Summa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_inbounds %}
+                    <tr>
+                        <td>{{ item.created_at|date:"d.m.Y" }}</td>
+                        <td>{{ item.partner.name }}</td>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.buy_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card shadow border-0 p-3">
+            <h5>Hamkorlar Balansi</h5>
+            <ul class="list-group list-group-flush">
+                {% for partner in partners %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ partner.name }}
+                    <span class="badge {% if partner.balance > 0 %}bg-danger{% else %}bg-secondary{% endif %}">
+                        {{ partner.balance }} so'm
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Mine Market Tizimi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; }
+        .sidebar { height: 100vh; background: #2c3e50; color: white; padding-top: 20px; }
+        .sidebar a { color: white; text-decoration: none; display: block; padding: 10px 20px; }
+        .sidebar a:hover { background: #34495e; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 sidebar">
+                <h4 class="text-center">Mine Market</h4>
+                <hr>
+                <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+                <a href="{% url 'products' %}">📦 Mahsulotlar</a>
+                <a href="{% url 'partners' %}">🤝 Hamkorlar</a>
+                <a href="{% url 'pos' %}">💰 Savdo (Kassa)</a>
+                <a href="{% url 'inbound_add' %}">📥 Tovar Qabul (Kirim)</a>
+                <a href="{% url 'return_add' %}">📤 Tovar Qaytarish (Vozvrat)</a>
+                <a href="{% url 'category_add' %}" class="btn btn-primary">+ Yangi category</a>
+                <a href="{% url 'product_add' %}" class="btn btn-primary">+ Yangi maxsulot</a>
+                <a href="{% url 'transaction_history' %}" class="btn btn-primary">+ history</a>
+            </div>
+            <div class="col-md-10 p-4">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

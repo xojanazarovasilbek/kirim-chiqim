@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="col-md-6 mx-auto">
+    <div class="card shadow p-4 border-danger">
+        <h3 class="text-danger">📤 Hamkorga qaytarish (Vozvrat)</h3>
+        {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+        <hr>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>Qaysi hamkorga qaytariladi?</label>
+                <select name="partner" class="form-select" required>
+                    {% for p in partners %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Mahsulot:</label>
+                <select name="product" class="form-select" required>
+                    {% for pr in products %}<option value="{{ pr.id }}">{{ pr.name }} (Qoldiq: {{ pr.stock }})</option>{% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Qaytarish soni:</label>
+                <input type="number" name="quantity" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-danger w-100 mt-3">Vozvratni tasdiqlash</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

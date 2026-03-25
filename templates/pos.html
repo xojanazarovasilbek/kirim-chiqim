@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-3">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h6 class="mb-0">Kategoriyalar</h6>
+                </div>
+                <div class="list-group list-group-flush" id="category-filter">
+                    <button class="list-group-item list-group-item-action active" onclick="filterProduct('all', this)">
+                        Barchasi
+                    </button>
+                    {% for cat in categories %}
+                    <button class="list-group-item list-group-item-action" onclick="filterProduct('cat-{{ cat.id }}', this)">
+                        {{ cat.name }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 bg-light">
+                <div class="card-body">
+                    <div class="row" id="product-list">
+                        {% for p in products %}
+                        <div class="col-md-4 mb-3 product-item cat-{{ p.category.id }}">
+                            <div class="card h-100 shadow-sm border-0 text-center p-2 product-card" 
+                                 onclick="addToCart('{{ p.id }}', '{{ p.name }}', '{{ p.selling_price }}', '{{ p.unit }}')"
+                                 style="cursor: pointer;">
+                                <div class="card-body p-1">
+                                    <h6 class="fw-bold mb-1">{{ p.name }}</h6>
+                                    <p class="text-muted small mb-2">{{ p.stock }} {{ p.unit }} mavjud</p>
+                                    <span class="badge bg-success fs-6">{{ p.selling_price }} so'm</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow border-0">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">🛒 Savatcha</h5>
+                    <button class="btn btn-sm btn-outline-light" onclick="clearCart()">Tozalash</button>
+                </div>
+                <div class="card-body p-0" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th class="text-start">Nomi</th>
+                                <th style="width: 100px;">Soni</th>
+                                <th>Jami</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-table">
+                            </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white p-3">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4 class="fw-bold">Jami:</h4>
+                        <h4 class="fw-bold text-primary"><span id="total-price">0</span> so'm</h4>
+                    </div>
+                    <button type="button" class="btn btn-success w-100 btn-lg shadow fw-bold" id="btn-confirm" onclick="finishSale()">
+                        ✅ SOTISHNI TASDIQLASH
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let cart = [];
+
+// 1. Kategoriya filtri
+function filterProduct(catId, element) {
+    document.querySelectorAll('#category-filter .list-group-item').forEach(btn => btn.classList.remove('active'));
+    element.classList.add('active');
+    let items = document.getElementsByClassName('product-item');
+    for (let item of items) {
+        if (catId === 'all' || item.classList.contains(catId)) {
+            item.style.display = "block";
+        } else {
+            item.style.display = "none";
+        }
+    }
+}
+
+// 2. Savatchaga qo'shish (Hisob-kitob Viewda bo'lgani uchun bu yerda faqat ro'yxat yig'iladi)
+function addToCart(id, name, price, unit) {
+    let item = cart.find(x => x.id === id);
+    if (item) {
+        item.qty += (unit === 'kg' ? 0.5 : 1);
+    } else {
+        cart.push({
+            id: id,
+            name: name,
+            price: parseFloat(price),
+            qty: (unit === 'kg' ? 1.0 : 1),
+            unit: unit
+        });
+    }
+    renderCart();
+}
+
+// 3. Savatchani ekranda ko'rsatish
+function renderCart() {
+    let html = '';
+    let total = 0;
+    
+    cart.forEach((item, index) => {
+        let subtotal = item.price * item.qty;
+        total += subtotal;
+        let step = (item.unit === 'kg' ? '0.1' : '1');
+        
+        html += `
+            <tr class="text-center">
+                <td class="text-start"><small class="fw-bold">${item.name}</small></td>
+                <td>
+                    <input type="number" step="${step}" min="${step}" class="form-control form-control-sm text-center" 
+                           value="${item.qty}" onchange="updateQty(${index}, this.value)">
+                </td>
+                <td class="small text-nowrap">${subtotal.toLocaleString()}</td>
+                <td>
+                    <button class="btn btn-sm p-0 text-danger" onclick="removeItem(${index})">✖</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    document.getElementById('cart-table').innerHTML = html || '<tr><td colspan="4" class="text-center text-muted py-5">Savatcha bo\'sh</td></tr>';
+    document.getElementById('total-price').innerText = total.toLocaleString().replace(/,/g, ' ');
+}
+
+function updateQty(index, val) {
+    cart[index].qty = parseFloat(val) || 0;
+    renderCart();
+}
+
+function removeItem(index) {
+    cart.splice(index, 1);
+    renderCart();
+}
+
+function clearCart() {
+    if(confirm("Savatchani bo'shatmoqchimisiz?")) {
+        cart = [];
+        renderCart();
+    }
+}
+
+// 4. SOTUVNI YAKUNLASH (VIEWga YUBORISH)
+async function finishSale() {
+    if (cart.length === 0) return alert("Sotish uchun mahsulot tanlang!");
+
+    const btn = document.getElementById('btn-confirm');
+    
+    // TUGMANI BLOKLASH (2 marta kamayishni oldini olish uchun eng muhimi!)
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Yuborilmoqda...';
+
+    try {
+        const response = await fetch('/api/sale/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ items: cart })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("Sotuv muvaffaqiyatli yakunlandi!");
+            cart = [];
+            // Sahifani keshsiz yangilash
+            window.location.replace(window.location.pathname + "?v=" + Math.random());
+        } else {
+            alert("Xatolik: " + result.error);
+            btn.disabled = false;
+            btn.innerText = "✅ Sotishni tasdiqlash";
+        }
+    } catch (error) {
+        alert("Server bilan ulanishda xatolik yuz berdi!");
+        btn.disabled = false;
+        btn.innerText = "✅ Sotishni tasdiqlash";
+    }
+}
+</script>
+
+<style>
+    .product-card { transition: 0.3s; border: 1px solid #eee !important; }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important; border-color: #0d6efd !important; }
+    #cart-table input::-webkit-outer-spin-button,
+    #cart-table input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .list-group-item.active { background-color: #0d6efd; border-color: #0d6efd; }
+</style>
+{% endblock %}

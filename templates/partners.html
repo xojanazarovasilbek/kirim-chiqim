@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow p-4">
+    <h3>🤝 Hamkorlar (Ta'minotchilar)</h3>
+    <table class="table mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Ism / Kompaniya</th>
+                <th>Telefon</th>
+                <th>Balans (Qarzimiz)</th>
+                <th>Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in partners %}
+            <tr>
+                <td>{{ p.name }}</td>
+                <td>{{ p.phone }}</td>
+                <td class="text-danger fw-bold">{{ p.balance }} so'm</td>
+                <td>
+                    <a href="{% url 'partner_detail' p.id %}" class="btn btn-sm btn-info text-white">Tarix</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

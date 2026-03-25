@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">📊 Amallar tarixi (Kirim-Chiqim)</h3>
+
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body bg-light rounded">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Sana bo'yicha filter:</label>
+                    <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrlash</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'transaction_history' %}" class="btn btn-outline-secondary w-100">Hammasi</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#in-tab">📥 Kirimlar</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#out-tab">📤 Chiqimlar</button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <div class="tab-pane fade show active" id="in-tab">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="type" value="in">
+                <div class="d-flex justify-content-between mb-2">
+                    <h5 class="text-success">Kirimlar ro'yxati</h5>
+                    <button type="submit" name="delete_ids" class="btn btn-danger btn-sm" onclick="return confirm('Tanlanganlarni o'chirishni xohlaysizmi?')">
+                        🗑 Tanlanganlarni o'chirish
+                    </button>
+                </div>
+                <table class="table table-hover bg-white rounded shadow-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><input type="checkbox" id="select-all-in"></th>
+                            <th>Mahsulot</th>
+                            <th>Soni</th>
+                            <th>Sana</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inbounds %}
+                        <tr>
+                            <td><input type="checkbox" name="selected_ids" value="{{ item.id }}" class="in-checkbox"></td>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.quantity }} {{ item.product.unit }}</td>
+                            <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center">Ma'lumot topilmadi</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div class="tab-pane fade" id="out-tab">
+            </div>
+    </div>
+</div>
+
+<script>
+    // Hammasini tanlash funksiyasi
+    document.getElementById('select-all-in').onclick = function() {
+        let checkboxes = document.getElementsByClassName('in-checkbox');
+        for (let checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    }
+</script>
+{% endblock %}

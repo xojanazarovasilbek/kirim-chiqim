@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm border-0 p-4" style="max-width: 500px; margin: auto;">
+    <h4 class="text-primary mb-4 text-center">📥 Tovar qabul qilish (Kirim)</h4>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Hamkorni tanlang:</label>
+            <select name="supplier" class="form-select">
+                {% for s in partners %}
+                <option value="{{ s.id }}">{{ s.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Mahsulot:</label>
+            <select name="product" id="product-select" class="form-select" onchange="updateUnit()">
+                <option value="">--- Tanlang ---</option>
+                {% for p in products %}
+                <option value="{{ p.id }}" data-unit="{{ p.unit }}">{{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Soni (<span id="unit-label-qty">...</span>):</label>
+                <input type="number" name="quantity" id="qty-input" step="0.01" class="form-control" placeholder="0.00">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Kelish narxi (<span id="unit-label-price">dona</span>):</label>
+                <input type="number" name="cost_price" class="form-control" placeholder="0.00">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mt-2">Omborga qabul qilish</button>
+    </form>
+</div>
+
+<script>
+function updateUnit() {
+    const select = document.getElementById('product-select');
+    const selectedOption = select.options[select.selectedIndex];
+    const unit = selectedOption.getAttribute('data-unit') || '...';
+    
+    // Label'larni yangilash
+    document.getElementById('unit-label-qty').innerText = unit;
+    document.getElementById('unit-label-price').innerText = unit;
+    
+    // Kg bo'lsa 0.1 qadam, dona bo'lsa 1 qadam qilib sozlash
+    const qtyInput = document.getElementById('qty-input');
+    if (unit === 'kg') {
+        qtyInput.step = "0.01";
+    } else {
+        qtyInput.step = "1";
+    }
+}
+</script>
+{% endblock %}
