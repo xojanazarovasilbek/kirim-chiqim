@@ -1,0 +1,31 @@
+# Python kesh fayllari
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Muhit sozlamalari (Maxfiy ma'lumotlar shunda bo'ladi)
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Ma'lumotlar bazasi (Lokal bazani serverga yuklamaslik kerak)
+*.sqlite3
+
+# Statik va media fayllar
+# (Odatda yuklangan rasmlar git-ga qo'shilmaydi)
+media/
+staticfiles/
+
+# IDE sozlamalari
+.vscode/
+.idea/
+*.swp
+
+# Log fayllar
+*.log
+
+# OS fayllari
+.DS_Store
+Thumbs.db
